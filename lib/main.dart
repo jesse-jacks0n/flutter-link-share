@@ -36,9 +36,9 @@ class MyApp extends StatelessWidget {
           darkTheme: darkMode,
           theme: lightMode,
           home: child,
-          // routes: {
-          //   '/testPage': (context) => TestPage(),
-          // },
+          routes: {
+            '/testPage': (context) => const AuthPage(),
+          },
         );
       },
       child: const AuthPage(),
