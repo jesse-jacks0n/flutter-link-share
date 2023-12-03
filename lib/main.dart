@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'socials app',
           // You can use the library anywhere in the app even in theme
-          darkTheme: darkMode,
+         // darkTheme: darkMode,
           theme: lightMode,
           home: child,
           routes: {

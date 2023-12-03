@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> {
               // backgroundColor: Colors.transparent,
               appBar: AppBar(
                 elevation: 0,
-                toolbarHeight: 70.h,
+                toolbarHeight: 50.h,
                 //backgroundColor: Colors.transparent,
                 leadingWidth: double.infinity,
                 leading: Padding(

@@ -15,14 +15,14 @@ ThemeData lightMode = ThemeData(
             primary: accentColor,
         ),
 );
-ThemeData darkMode = ThemeData(
-    brightness: Brightness.dark,
-    useMaterial3: true,
-    
-    inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Colors.grey.shade400, // Set the fill color to grey 200
-
-    ),
-    colorScheme: ColorScheme.dark(
-        background: myDarkBackground, primary: accentColor,));
+// ThemeData darkMode = ThemeData(
+//     brightness: Brightness.dark,
+//     useMaterial3: true,
+//
+//     inputDecorationTheme: InputDecorationTheme(
+//             filled: true,
+//             fillColor: Colors.grey.shade400, // Set the fill color to grey 200
+//
+//     ),
+//     colorScheme: ColorScheme.dark(
+//         background: myDarkBackground, primary: accentColor,));

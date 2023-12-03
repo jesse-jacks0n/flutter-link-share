@@ -18,6 +18,7 @@ class AuthPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Return a loading indicator or an empty container
             return const Center(
+
                 child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
             // User is logged in, check if links data exists
