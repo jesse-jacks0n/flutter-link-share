@@ -5,6 +5,10 @@
         android:label="soci"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1926283539123501~7555152856" />
+            />
 
         <activity
             android:name=".MainActivity"

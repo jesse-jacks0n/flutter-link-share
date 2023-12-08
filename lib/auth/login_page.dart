@@ -37,31 +37,44 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         final user = FirebaseAuth.instance.currentUser;
-        final databaseReference = FirebaseDatabase.instance.reference();
-        final userLinksRef =
-            databaseReference.child('users/${user?.uid}/links');
 
-        final linksSnapshot = await userLinksRef.once();
+        if (user != null && user.emailVerified) {
+          // User is signed in and email is verified
+          // Navigate to the appropriate screen based on your logic
+          final databaseReference = FirebaseDatabase.instance.reference();
+          final userLinksRef =
+          databaseReference.child('users/${user.uid}/links');
 
-        if (linksSnapshot.snapshot != null) {
-          // Links data exists, navigate to HomePage
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
+          final linksSnapshot = await userLinksRef.once();
+
+          if (linksSnapshot.snapshot != null) {
+            // Links data exists, navigate to HomePage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          } else {
+            // Links data doesn't exist, navigate to LinksPage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LinksPage()),
+            );
+          }
+
+          ToastHelper.showShortToast('Sign-in successfull');
         } else {
-          // Links data doesn't exist, navigate to LinksPage
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LinksPage()),
-          );
+          // User is not signed in or email is not verified
+          // Show a message or handle the case accordingly
+          ToastHelper.showShortToast(
+              'Verification email sent, please verify your email');
+
+          // Optionally, you may sign out the user as they can't proceed without email verification
+          await FirebaseAuth.instance.signOut();
         }
-        // Sign-in successful
-        ToastHelper.showShortToast('Sign-in successfull');
       } catch (e) {
         if (e is FirebaseAuthException && e.code == 'user-not-found') {
           // Handle the case where the user is not found
-          ToastHelper.showShortToast('user not found');
+          ToastHelper.showShortToast('User not found');
         } else if (e is FirebaseAuthException && e.code == 'wrong-password') {
           // Handle the case where the password is incorrect
           ToastHelper.showShortToast('Incorrect password');

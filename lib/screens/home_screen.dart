@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,8 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:soci/screens/profile_screen.dart';
 import 'package:soci/screens/test_page.dart';
+import 'package:soci/services/banner_class.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/add_social_link.dart';
 import '../components/my_drawer.dart';
@@ -35,6 +37,7 @@ class _HomePageState extends State<HomePage> {
     setStateCallback: (VoidCallback callback) {},
   );
 
+
   User? user = FirebaseAuth.instance.currentUser;
   String? name;
   String? email;
@@ -55,6 +58,7 @@ class _HomePageState extends State<HomePage> {
     });
     super.initState();
     _userFunctionService.loadLinks(user, _userRef, _links);
+
   }
 
 //start of my functions
@@ -203,8 +207,8 @@ class _HomePageState extends State<HomePage> {
               // backgroundColor: Colors.transparent,
               appBar: AppBar(
                 elevation: 0,
-                toolbarHeight: 50.h,
-                //backgroundColor: Colors.transparent,
+                toolbarHeight: 40.h,
+
                 leadingWidth: double.infinity,
                 leading: Padding(
                   padding: EdgeInsets.only(
@@ -224,8 +228,8 @@ class _HomePageState extends State<HomePage> {
                             ? name![0].toUpperCase() + name!.substring(1)
                             : '-',
                         style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w300,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -244,17 +248,17 @@ class _HomePageState extends State<HomePage> {
                           decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.grey.shade400,
-                                width: 2,
+                                color: Colors.grey.shade300,
+                                width: 1,
                               )),
-                          child: CircleAvatar(
-                            radius: 22,
-                            backgroundImage: _imageUrl != null &&
-                                    _imageUrl!.isNotEmpty
-                                ? NetworkImage(_imageUrl!)
-                                : const AssetImage('assets/user.png')
-                                    as ImageProvider, // Cast to ImageProvider
+                          child:CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.white,
+                            backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
+                                ? CachedNetworkImageProvider(_imageUrl!)
+                                : const AssetImage('assets/user.png') as ImageProvider,
                           ),
+
                         ),
                       ),
                     ),
@@ -277,12 +281,17 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16.0,
                           ),
-                          child: Row(
+                          child: Column(
                             children: [
-                              Text(
-                                'My Links',
-                                style: GoogleFonts.bebasNeue(fontSize: 50.sp),
+                              Row(
+                                children: [
+                                  Text(
+                                    'My Links',
+                                    style: GoogleFonts.poppins(fontSize: 30.sp),
+                                  ),
+                                ],
                               ),
+
                             ],
                           ),
                         ),
@@ -291,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                             padding: const EdgeInsets.all(16.0),
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3, // Number of items in each row
+                              crossAxisCount: 4, // Number of items in each row
                               mainAxisSpacing: 16.0, // Spacing between rows
                               crossAxisSpacing: 16.0, // Spacing between columns
                               // childAspectRatio: 1/1.1
@@ -302,22 +311,36 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
+                        // SizedBox(
+                        //   height: 12.h,
+                        //   child: Center(
+                        //     child: Visibility(
+                        //       visible: isVisible,
+                        //       child:  Text(
+                        //         'Long press app icon for more options',
+                        //         style: TextStyle(fontSize: 13.sp),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              _shareLinks(); // Call the function to share links
+                              _shareLinks();
                             },
-                            icon: const Icon(Icons.share),
-                            label: const Text("Share My Links"),
+                            icon: const Icon(Icons.share,color: Colors.white,),
+                            label: const Text("Share My Links",style: TextStyle(color: Colors.white),),
                             style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.accentColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
-                                    10.0), // Adjust the radius as needed
+                                    50.0),
                               ),
                             ),
                           ),
                         ),
+                        const BannerWid(),
                       ],
                     ),
                   ),
@@ -372,8 +395,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             Image.asset(
               iconPath,
-              width: 50.w,
-              height: 50.h,
+              width: 40.w,
+              height: 40.h,
             ),
             SizedBox(height: 5.h),
             Text(

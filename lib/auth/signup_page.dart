@@ -28,20 +28,23 @@ class _SignupPageState extends State<SignupPage> {
   bool _isLoading = false;
 
   Future<bool> registerUser() async {
-    if (
-    personalFormKey.currentState!.validate()) {
+    if (personalFormKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        UserCredential userCredential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
 
         User? user = userCredential.user;
+
+        // Send email verification
+        await user?.sendEmailVerification();
+
         // Update the user's display name
         await user?.updateDisplayName(nameController.text);
 
@@ -53,9 +56,10 @@ class _SignupPageState extends State<SignupPage> {
           'name': nameController.text,
           'phone': phoneController.text,
           'email': emailController.text,
-
         });
-        ToastHelper.showShortToast('Registration successful');
+
+        ToastHelper.showShortToast(
+            'Registration successful. Please check your email for verification.');
 
         Navigator.pushReplacement(
           context,
@@ -71,7 +75,6 @@ class _SignupPageState extends State<SignupPage> {
         if (e is FirebaseAuthException && e.code == 'email-already-in-use') {
           // Email already exists
           ToastHelper.showShortToast('Email already exists');
-
         } else {
           // Other registration failure
           ToastHelper.showShortToast('Registration failed');
@@ -83,7 +86,8 @@ class _SignupPageState extends State<SignupPage> {
       }
     } else {
       // Some fields are not filled correctly, do not proceed with registration
-      ToastHelper.showShortToast('Please fill all required fields correctly');
+      ToastHelper.showShortToast(
+          'Please fill all required fields correctly');
 
       return false; // Registration was not successful
     }

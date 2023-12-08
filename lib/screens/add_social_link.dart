@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:soci/helper/toast_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'home_screen.dart';
@@ -23,14 +25,19 @@ class SocialMediaOption {
 }
 
 class _AddSocialLinkPageState extends State<AddSocialLinkPage>
-with SingleTickerProviderStateMixin{
-
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
   final TextEditingController linkController = TextEditingController();
   String selectedSocialMedia = 'Instagram'; // Default selected social media
   bool _isLoading = false;
+
+  InterstitialAd? _interstitialAd;
+
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-1926283539123501/4734414367'
+      : 'ca-app-pub-3940256099942544/4411468910';
 
   @override
   void initState() {
@@ -52,11 +59,13 @@ with SingleTickerProviderStateMixin{
 
     // Start the animation in a loop
     _controller.repeat(reverse: true);
+    _loadAd();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -132,14 +141,14 @@ with SingleTickerProviderStateMixin{
 
   Map<String, Color> socialMediaColors = {
     'Snapchat': Colors.yellow.shade600, // Define the color for Snapchat
-    'LinkedIn': Colors.blue,   // Define the color for LinkedIn
-    'Pinterest': Colors.redAccent,   // Define the color for LinkedIn
-    'Twitter': Colors.black,   // Define the color for LinkedIn
-    'Instagram': Colors.pink.shade900,   // Define the color for LinkedIn
-    'Facebook': Colors.blueAccent,   // Define the color for LinkedIn
-    'Tiktok': Colors.deepPurple.shade900,   // Define the color for LinkedIn
-    'Youtube': Colors.red.shade700,   // Define the color for LinkedIn
-    'Finda': Colors.blue,   // Define the color for LinkedIn
+    'LinkedIn': Colors.blue, // Define the color for LinkedIn
+    'Pinterest': Colors.redAccent, // Define the color for LinkedIn
+    'Twitter': Colors.black, // Define the color for LinkedIn
+    'Instagram': Colors.pink.shade900, // Define the color for LinkedIn
+    'Facebook': Colors.blueAccent, // Define the color for LinkedIn
+    'Tiktok': Colors.deepPurple.shade900, // Define the color for LinkedIn
+    'Youtube': Colors.red.shade700, // Define the color for LinkedIn
+    'Finda': Colors.blue, // Define the color for LinkedIn
     // Add more social media options and their colors here
   };
   Map<String, Color> socialMediaOpenerColors = {
@@ -171,7 +180,8 @@ with SingleTickerProviderStateMixin{
     };
 
     // Get the icon asset path based on the social media name
-    return socialMediaIcons[socialMedia] ?? 'assets/default_icon.png'; // Provide a default icon path if not found
+    return socialMediaIcons[socialMedia] ??
+        'assets/default_icon.png'; // Provide a default icon path if not found
   }
 
   @override
@@ -187,7 +197,6 @@ with SingleTickerProviderStateMixin{
       appBar: AppBar(
         title: Text('Add Social Link'),
         elevation: 0,
-
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -195,18 +204,16 @@ with SingleTickerProviderStateMixin{
           child: Column(
             children: [
               DropdownButtonFormField(
-                isDense: true, // Reduces the size of the dropdown
+                isDense: true,
+                // Reduces the size of the dropdown
                 value: selectedSocialMedia,
 
                 decoration: InputDecoration(
-
                   border: OutlineInputBorder(
                     borderRadius: borderRadius,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: borderRadius,
-                    borderSide: BorderSide.none
-                  ),
+                      borderRadius: borderRadius, borderSide: BorderSide.none),
                   labelStyle: labelStyle,
                   contentPadding: contentPadding,
                 ),
@@ -223,7 +230,8 @@ with SingleTickerProviderStateMixin{
                             width: 24, // Adjust the width as needed
                             height: 24, // Adjust the height as needed
                           ),
-                          SizedBox(width: 8), // Adjust the spacing between icon and text
+                          SizedBox(width: 8),
+                          // Adjust the spacing between icon and text
                           Text(
                             option.name,
                             style: TextStyle(fontSize: 20.sp),
@@ -239,7 +247,6 @@ with SingleTickerProviderStateMixin{
                   });
                 },
               ),
-
               SizedBox(height: 20.0.h),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -247,9 +254,9 @@ with SingleTickerProviderStateMixin{
                 children: [
                   Text(
                     'Don\'t have a link yet? Open $selectedSocialMedia ',
-                    style: TextStyle(fontSize: 15.sp, color: Colors.grey.shade600),
+                    style:
+                        TextStyle(fontSize: 15.sp, color: Colors.grey.shade600),
                   ),
-
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50),
@@ -259,7 +266,8 @@ with SingleTickerProviderStateMixin{
                       icon: Icon(Icons.open_in_new),
                       onPressed: () async {
                         // Get the selected social media name
-                        String selectedMedia = selectedSocialMedia.toLowerCase();
+                        String selectedMedia =
+                            selectedSocialMedia.toLowerCase();
 
                         // Define app URL schemes for some common social media apps
                         Map<String, String> appURLs = {
@@ -293,21 +301,17 @@ with SingleTickerProviderStateMixin{
                   ),
                 ],
               ),
-
               SizedBox(height: 20.0.h),
               TextFormField(
                 controller: linkController,
                 style: style,
                 decoration: InputDecoration(
                   labelText: 'Enter link',
-
                   border: OutlineInputBorder(
                     borderRadius: borderRadius,
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: borderRadius,
-                    borderSide: BorderSide.none
-                  ),
+                      borderRadius: borderRadius, borderSide: BorderSide.none),
                   labelStyle: labelStyle,
                   contentPadding: contentPadding,
                 ),
@@ -318,9 +322,7 @@ with SingleTickerProviderStateMixin{
                   return null;
                 },
               ),
-
               SizedBox(height: 20.0.h),
-
               GestureDetector(
                 onTap: () async {
                   String link = linkController.text;
@@ -349,15 +351,10 @@ with SingleTickerProviderStateMixin{
                       linkController.clear(); // Clear the text field
                     });
                     linkController..text = link;
-                    linkController..selection = TextSelection.collapsed(offset: 0);
-                    Fluttertoast.showToast(
-                      msg: "Link should start with 'https://'.",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.red,
-                      textColor: Colors.white,
-                    );
+                    linkController
+                      ..selection = TextSelection.collapsed(offset: 0);
+                    ToastHelper.showShortToast(
+                        "Link should start with 'https://'.");
                   } else {
                     // Set isLoading to true to disable the button while submitting
                     setState(() {
@@ -365,18 +362,24 @@ with SingleTickerProviderStateMixin{
                     });
 
                     // Call your saveLinkToDatabase function here
-                    await saveLinkToDatabase(link, selectedSocialMedia, context);
+                    await saveLinkToDatabase(
+                        link, selectedSocialMedia, context);
 
                     // Navigate back to the homepage and replace the current homepage
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => HomePage()),
                     );
+                    ToastHelper.showLongToast(
+                        "Long press app icon for more options");
+                    //load ad
+                    _interstitialAd?.show();
                   }
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: socialMediaColors[selectedSocialMedia], // Use the selected color
+                    color: socialMediaColors[selectedSocialMedia],
+                    // Use the selected color
                     borderRadius: borderRadius,
                   ),
                   padding: EdgeInsets.symmetric(
@@ -385,54 +388,52 @@ with SingleTickerProviderStateMixin{
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.white,
-                    ),
-                  )
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        )
                       : Text(
-                    'Submit',
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 40.0.h),
-
               GestureDetector(
                 onTap: () async {
-                    // Get the selected social media name
-                    String selectedMedia = selectedSocialMedia.toLowerCase();
-                    // Define app URL schemes for some common social media apps
-                    Map<String, String> appURLs = {
-                      'snapchat': 'snapchat://',
-                      'linkedin': 'linkedin://',
-                      'pinterest': 'pinterest://',
-                      'twitter': 'twitter://',
-                      'instagram': 'instagram://',
-                      'facebook': 'facebook://',
-                      'tiktok': 'tiktok://',
-                      'youtube': 'youtube://',
-                      'finda': 'finda://',
-                      // Add more social media apps and their URL schemes here
-                    };
+                  // Get the selected social media name
+                  String selectedMedia = selectedSocialMedia.toLowerCase();
+                  // Define app URL schemes for some common social media apps
+                  Map<String, String> appURLs = {
+                    'snapchat': 'snapchat://',
+                    'linkedin': 'linkedin://',
+                    'pinterest': 'pinterest://',
+                    'twitter': 'twitter://',
+                    'instagram': 'instagram://',
+                    'facebook': 'facebook://',
+                    'tiktok': 'tiktok://',
+                    'youtube': 'youtube://',
+                    'finda': 'finda://',
+                    // Add more social media apps and their URL schemes here
+                  };
 
-                    // Check if the selected social media has a corresponding app URL scheme
-                    if (appURLs.containsKey(selectedMedia)) {
-                      // Launch the app if the URL scheme is available
-                      if (await canLaunch(appURLs[selectedMedia]!)) {
-                  launch(appURLs[selectedMedia]!);
+                  // Check if the selected social media has a corresponding app URL scheme
+                  if (appURLs.containsKey(selectedMedia)) {
+                    // Launch the app if the URL scheme is available
+                    if (await canLaunch(appURLs[selectedMedia]!)) {
+                      launch(appURLs[selectedMedia]!);
+                    } else {
+                      // If the app is not installed, open in the default browser
+                      await launch('https://www.$selectedMedia.com');
+                    }
                   } else {
-                  // If the app is not installed, open in the default browser
-                  await launch('https://www.$selectedMedia.com');
+                    // If the URL scheme is not available, try to open in the default browser
+                    await launch('https://www.$selectedMedia.com');
                   }
-                  } else {
-                  // If the URL scheme is not available, try to open in the default browser
-                  await launch('https://www.$selectedMedia.com');
-                  }
-
                 },
                 child: AnimatedBuilder(
                   animation: _animation,
@@ -442,21 +443,24 @@ with SingleTickerProviderStateMixin{
                       child: Container(
                         padding: EdgeInsets.all(30.h),
                         decoration: BoxDecoration(
-                            color: socialMediaOpenerColors[selectedSocialMedia],
-                            borderRadius: BorderRadius.circular(20),
+                          color: socialMediaOpenerColors[selectedSocialMedia],
+                          borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.3), // Adjust shadow color and opacity as needed
-                              spreadRadius: 0.5, // Adjust the spread radius
-                              blurRadius: 5.0, // Adjust the blur radius
+                              color: Colors.grey.withOpacity(0.3),
+                              // Adjust shadow color and opacity as needed
+                              spreadRadius: 0.5,
+                              // Adjust the spread radius
+                              blurRadius: 5.0,
+                              // Adjust the blur radius
                               offset: Offset(0, 5), // Adjust the shadow offset
                             ),
                           ],
                         ),
                         child: Image.asset(
-                          getIconAssetPath(selectedSocialMedia), // Get the icon path based on the selected social media
+                          getIconAssetPath(selectedSocialMedia),
+                          // Get the icon path based on the selected social media
                           width: 120.w,
-
                         ),
                       ),
                     );
@@ -468,5 +472,39 @@ with SingleTickerProviderStateMixin{
         ),
       ),
     );
+  }
+
+  void _loadAd() {
+    InterstitialAd.load(
+        adUnitId: _adUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          // Called when an ad is successfully received.
+          onAdLoaded: (InterstitialAd ad) {
+            ad.fullScreenContentCallback = FullScreenContentCallback(
+                // Called when the ad showed the full screen content.
+                onAdShowedFullScreenContent: (ad) {},
+                // Called when an impression occurs on the ad.
+                onAdImpression: (ad) {},
+                // Called when the ad failed to show full screen content.
+                onAdFailedToShowFullScreenContent: (ad, err) {
+                  ad.dispose();
+                },
+                // Called when the ad dismissed full screen content.
+                onAdDismissedFullScreenContent: (ad) {
+                  ad.dispose();
+                },
+                // Called when a click is recorded for an ad.
+                onAdClicked: (ad) {});
+
+            // Keep a reference to the ad so you can show it later.
+            _interstitialAd = ad;
+          },
+          // Called when an ad request failed.
+          onAdFailedToLoad: (LoadAdError error) {
+            // ignore: avoid_print
+            print('InterstitialAd failed to load: $error');
+          },
+        ));
   }
 }

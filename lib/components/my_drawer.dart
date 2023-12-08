@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/profile_screen.dart';
@@ -27,7 +28,7 @@ class MyDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: _imageUrl != null && _imageUrl!.isNotEmpty
-                      ? NetworkImage(_imageUrl!)
+                      ? CachedNetworkImageProvider(_imageUrl!)
                       : const AssetImage('assets/bgdrw.jpg') as ImageProvider, // Cast to ImageProvider
                   fit: BoxFit.cover,
                 ),
