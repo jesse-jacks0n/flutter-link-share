@@ -36,7 +36,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
   InterstitialAd? _interstitialAd;
 
   final String _adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-1926283539123501/4734414367'
+      ? 'ca-app-pub-3940256099942544/1033173712'
       : 'ca-app-pub-3940256099942544/4411468910';
 
   @override
@@ -188,6 +188,8 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
   Widget build(BuildContext context) {
     var borderRadius = BorderRadius.circular(50.0);
     var labelStyle = TextStyle(fontSize: 17.sp);
+    var floatingLabelStyle =  TextStyle(fontSize: 17.sp,color: Theme.of(context).colorScheme.tertiary);
+
     var style = TextStyle(fontSize: 17.sp);
     var contentPadding =
         EdgeInsets.symmetric(vertical: 13.0.h, horizontal: 10.w);
@@ -195,6 +197,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
         title: Text('Add Social Link'),
         elevation: 0,
       ),
@@ -207,6 +210,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                 isDense: true,
                 // Reduces the size of the dropdown
                 value: selectedSocialMedia,
+                dropdownColor: Theme.of(context).colorScheme.primary,
 
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -216,6 +220,8 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                       borderRadius: borderRadius, borderSide: BorderSide.none),
                   labelStyle: labelStyle,
                   contentPadding: contentPadding,
+                  filled: true,
+                 // fillColor: Theme.of(context).colorScheme.primary
                 ),
                 items: socialMediaOptions.map((SocialMediaOption option) {
                   return DropdownMenuItem(
@@ -307,6 +313,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                 style: style,
                 decoration: InputDecoration(
                   labelText: 'Enter link',
+                  floatingLabelStyle: floatingLabelStyle,
                   border: OutlineInputBorder(
                     borderRadius: borderRadius,
                   ),
@@ -314,6 +321,8 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                       borderRadius: borderRadius, borderSide: BorderSide.none),
                   labelStyle: labelStyle,
                   contentPadding: contentPadding,
+                  filled: true,
+                  //fillColor: Theme.of(context).colorScheme.primary
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -368,7 +377,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                     // Navigate back to the homepage and replace the current homepage
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
+                      MaterialPageRoute(builder: (context) =>  HomePage()),
                     );
                     ToastHelper.showLongToast(
                         "Long press app icon for more options");
@@ -443,19 +452,9 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                       child: Container(
                         padding: EdgeInsets.all(30.h),
                         decoration: BoxDecoration(
-                          color: socialMediaOpenerColors[selectedSocialMedia],
+                          // color: socialMediaOpenerColors[selectedSocialMedia],
+                          color: Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              // Adjust shadow color and opacity as needed
-                              spreadRadius: 0.5,
-                              // Adjust the spread radius
-                              blurRadius: 5.0,
-                              // Adjust the blur radius
-                              offset: Offset(0, 5), // Adjust the shadow offset
-                            ),
-                          ],
                         ),
                         child: Image.asset(
                           getIconAssetPath(selectedSocialMedia),

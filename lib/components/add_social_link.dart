@@ -22,7 +22,7 @@ class AddSocialLink extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Column(

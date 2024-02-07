@@ -1,10 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
-
-import '../utils/app_colors.dart';
+import 'package:soci/services/banner_class.dart';
 import '../components/image_upload.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -86,106 +84,87 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     var marginBottom = const EdgeInsets.only(bottom: 10);
     return Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FutureBuilder<Map<String, dynamic>?>(
-                future: fetchUserData(user!.uid),
-                // The future that resolves to your user data
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    // While data is loading, show a progress indicator
-                    return Center(
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.grey.shade700,
-                        highlightColor: Colors.grey.shade100,
-                        child: const Center(
-                          child: Text(
-                            'Loading....',
-                            style: TextStyle(fontSize: 24.0),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+      ),
+      body: Column(
+       
+        children: [
+          Expanded(
+            child: FutureBuilder<Map<String, dynamic>?>(
+              future: fetchUserData(user!.uid),
+              // The future that resolves to your user data
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // While data is loading, show a progress indicator
+                  return Center(
+                    child:Image.asset(
+                      'assets/Spin.gif', // Replace with the actual path to your GIF image
+                      width: 70,
+                      height: 70,
+                    )
+                  );
+                } else if (snapshot.hasError) {
+                  // If there's an error while fetching data, display an error message
+                  return Text('Error fetching data: ${snapshot.error}');
+                } else {
+                  // Data has been loaded successfully, build your UI using the data
+                  Map<String, dynamic>? userData = snapshot.data;
+                  if (userData == null) {
+                    return const Text('No user data found.');
+                  } else {
+                    // Your existing UI code using the fetched data
+                    return Column(
+
+                      children: [
+                        ImageUploadWidget(),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          margin: marginBottom,
+                          padding: const EdgeInsets.all(10),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color:Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(15),
+
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Shimmer.fromColors(
+                                baseColor: Colors.grey.shade800,
+                                period: const Duration(milliseconds: 1500),
+                                loop: 3,
+                                highlightColor: Colors.grey.shade200,
+                                child: Text('MY DETAILS',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.grey.shade600)),
+                              ),
+                              Text(
+                                'Name, ${name ?? 'Guest'}',
+                                style: TextStyle(fontSize: 18,color: Theme.of(context).colorScheme.tertiary),
+                              ),
+                              Text(
+                                'Email: ${email ?? ''}',
+                                style: TextStyle(fontSize: 18,color: Theme.of(context).colorScheme.tertiary),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                      ],
                     );
-                  } else if (snapshot.hasError) {
-                    // If there's an error while fetching data, display an error message
-                    return Text('Error fetching data: ${snapshot.error}');
-                  } else {
-                    // Data has been loaded successfully, build your UI using the data
-                    Map<String, dynamic>? userData = snapshot.data;
-                    if (userData == null) {
-                      return const Text('No user data found.');
-                    } else {
-                      // Your existing UI code using the fetched data
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ImageUploadWidget(),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            margin: marginBottom,
-                            padding: const EdgeInsets.all(10),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: AppColors.containerColor,
-                              borderRadius: BorderRadius.circular(15),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  // Shadow color and opacity
-                                  spreadRadius: 10,
-                                  // How far the shadow extends
-                                  blurRadius: 20,
-                                  // The intensity of the blur effect
-                                  offset: const Offset(0,
-                                      3), // Offset in the x and y directions (0, 3) means shadow moves down 3 pixels
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey.shade800,
-                                  period: const Duration(milliseconds: 1500),
-                                  loop: 3,
-                                  highlightColor: Colors.grey.shade200,
-                                  child: Text('MY DETAILS',
-                                      style: GoogleFonts.bebasNeue(
-                                          fontSize: 20,
-                                          color: Colors.grey.shade800)),
-                                ),
-                                Text(
-                                  'Name, ${name ?? 'Guest'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                Text(
-                                  'Email: ${email ?? ''}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-
-
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    }
                   }
-                },
-              ),
-            ],
+                }
+              },
+            ),
           ),
-        ),
+          BannerWid()
+        ],
       ),
     );
   }

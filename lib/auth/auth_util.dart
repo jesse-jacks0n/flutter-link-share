@@ -17,9 +17,13 @@ class AuthPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Return a loading indicator or an empty container
-            return const Center(
+            return  Center(
 
-                child: CircularProgressIndicator());
+                child: Image.asset(
+                    'assets/Spin.gif',
+                    width: 70,
+                    height: 70,
+                  ));
           } else if (snapshot.hasData) {
             // User is logged in, check if links data exists
             final user = FirebaseAuth.instance.currentUser;
@@ -30,17 +34,21 @@ class AuthPage extends StatelessWidget {
               future: userLinksRef.once(),
               builder: (context, linksSnapshot) {
                 if (linksSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                      child: CircularProgressIndicator());
+                  return  Center(
+                      child: Image.asset(
+                    'assets/Spin.gif',
+                    width: 70,
+                    height: 70,
+                  ));
                 } else if (linksSnapshot.hasError) {
-                  // Handle any errors here
-                  debugPrint('Error fetching links data: ${linksSnapshot.error}');
+
+                  //debugPrint('Error fetching links data: ${linksSnapshot.error}');
                   return Text('Error: ${linksSnapshot.error}');
                 } else if (linksSnapshot.hasData && linksSnapshot.data?.snapshot.value != null) {
-                  debugPrint('Links data exists: ${linksSnapshot.data?.snapshot.value}');
+                 // debugPrint('Links data exists: ${linksSnapshot.data?.snapshot.value}');
                   return const HomePage();
                 } else {
-                  debugPrint('Links data does not exist');
+                  //debugPrint('Links data does not exist');
                       return LinksPage();
                 }
               },

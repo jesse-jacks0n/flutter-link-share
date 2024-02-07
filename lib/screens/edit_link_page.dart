@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:soci/theme/theme.dart';
 import 'package:soci/utils/app_colors.dart';
 import 'home_screen.dart';
 
@@ -40,8 +41,15 @@ class _EditLinksPageState extends State<EditLinksPage> {
   @override
   Widget build(BuildContext context) {
     //const Color socialMediaGradients = socialMediaGradients;
+    var labelStyle = TextStyle(fontSize: 17.sp);
+    var backgroundColor = Theme.of(context).colorScheme.background;
+    var contentPadding =
+    EdgeInsets.symmetric(vertical: 13.0.h, horizontal: 10.w);
+    var borderRadius = BorderRadius.circular(50.0);
     return Scaffold(
+      backgroundColor:backgroundColor,
       appBar: AppBar(
+        backgroundColor:backgroundColor,
         title: Text(
             'Edit ${widget.socialMedia} Link'), // Use the widget.socialMedia variable
       ),
@@ -58,7 +66,15 @@ class _EditLinksPageState extends State<EditLinksPage> {
                     controller: linkController,
                     decoration: InputDecoration(
                       labelText: 'Edit ${widget.socialMedia} Link',
-                      border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: borderRadius,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: borderRadius, borderSide: BorderSide.none),
+                        labelStyle: labelStyle,
+                        contentPadding: contentPadding,
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.4)
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -73,26 +89,39 @@ class _EditLinksPageState extends State<EditLinksPage> {
                     children: [
 
                       ElevatedButton(
+                        style:ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(AppColors.accentColor),
+                        ),
+
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
+                                backgroundColor: Theme.of(context).colorScheme.primary,
                                 title: Text('Clear'),
-                                content: Text('Are you sure you want to clear this link?'),
+                                content: Text('Are you sure you want to clear this link?', style: TextStyle(color: Theme.of(context).colorScheme.tertiary),),
                                 actions: <Widget>[
                                   TextButton(
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
-                                    child: Text('Cancel'),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 15,vertical: 7),
+                                      decoration:BoxDecoration(color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                      borderRadius: borderRadius),
+                                        child: Text('Cancel',style: TextStyle(color: AppColors.cancel))),
                                   ),
                                   TextButton(
                                     onPressed: () {
                                       linkController.clear();
                                       Navigator.of(context).pop(); // Close the dialog
                                     },
-                                    child: Text('Clear ${widget.socialMedia}'),
+                                    child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 15,vertical: 7),
+                                        decoration:BoxDecoration(color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                        borderRadius: borderRadius),
+                                        child: Text('Clear ${widget.socialMedia}',style: TextStyle(color: AppColors.accentColor),)),
                                   ),
                                 ],
                               );
@@ -100,12 +129,15 @@ class _EditLinksPageState extends State<EditLinksPage> {
                           );
                           // Pass userId as an argument
                         },
-                        child: Text('Clear Link'),
-                      ),
+                        child: Text('Clear Link', style: TextStyle()),),
+
                       SizedBox(
                         width: 20.sp,
                       ),
                       ElevatedButton(
+                        style:ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(AppColors.accentColor),
+                        ),
                         onPressed: () {
                           if (linkController.text.isEmpty) {
                             // Show an error message if the link field is empty
@@ -123,6 +155,7 @@ class _EditLinksPageState extends State<EditLinksPage> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
                                   title: Text('Confirm Update'),
                                   content: Text('Are you sure you want to update this link?'),
                                   actions: <Widget>[
@@ -130,7 +163,11 @@ class _EditLinksPageState extends State<EditLinksPage> {
                                       onPressed: () {
                                         Navigator.of(context).pop();
                                          },
-                                      child: Text('Cancel'),
+                                      child: Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 15,vertical: 7),
+                                          decoration:BoxDecoration(color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                              borderRadius: borderRadius),
+                                          child: Text('Cancel',style: TextStyle(color: AppColors.cancel))),
                                     ),
                                     TextButton(
                                       onPressed: () {
@@ -139,7 +176,11 @@ class _EditLinksPageState extends State<EditLinksPage> {
                                         Navigator.pushReplacement(context, MaterialPageRoute(builder:(context) =>  HomePage()));// Close the dialog
 
                                       },
-                                      child: Text('Update ${widget.socialMedia}'),
+                                      child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 15,vertical: 7),
+                                decoration:BoxDecoration(color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                borderRadius: borderRadius),
+                                child: Text('Update ${widget.socialMedia}',style: TextStyle(color: AppColors.accentColor),)),
                                     ),
                                   ],
                                 );
@@ -147,7 +188,7 @@ class _EditLinksPageState extends State<EditLinksPage> {
                             );
                           }
                         },
-                        child: Text('Update Link', style: TextStyle(color: AppColors.accentColor)),
+                        child: Text('Update Link', style: TextStyle()),
                       ),
 
                     ],
@@ -188,10 +229,10 @@ class _EditLinksPageState extends State<EditLinksPage> {
                 padding: EdgeInsets.symmetric(vertical:15.h ),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                    color: Colors.red.shade400,
-                  borderRadius: BorderRadius.circular(15)
+                    color:Colors.red[400],
+                  borderRadius:borderRadius
                 ),
-                child: Center(child: Text('Delete ${widget.socialMedia}', style: TextStyle(color: Colors.white,fontSize: 22.sp))),
+                child: Center(child: Text('Delete ${widget.socialMedia}', style: TextStyle(color: Colors.white,fontSize: 18.sp))),
               ),
             ),
             SizedBox(height: 20.sp,)

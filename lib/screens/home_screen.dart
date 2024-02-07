@@ -7,10 +7,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:soci/screens/test_page.dart';
-import 'package:soci/services/banner_class.dart';
+import 'dart:io';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/add_social_link.dart';
 import '../components/my_drawer.dart';
@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final DatabaseReference _userRef =
-      FirebaseDatabase.instance.reference().child('users');
+      FirebaseDatabase.instance.ref().child('users');
   final UserDataService _userDataService =
       UserDataService(); // Create an instance of UserDataService
   final UserFunctionService _userFunctionService = UserFunctionService(
@@ -37,12 +37,16 @@ class _HomePageState extends State<HomePage> {
     setStateCallback: (VoidCallback callback) {},
   );
 
+  BannerAd? _bannerAd;
 
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/2934735716'
+      : 'ca-app-pub-3940256099942544/2934735716';
+//'ca-app-pub-1926283539123501/7638288619'
   User? user = FirebaseAuth.instance.currentUser;
   String? name;
   String? email;
   String? _imageUrl;
-  String? generatedLink;
   Map<String, String> _links = {}; // Store the links
 
   @override
@@ -58,7 +62,7 @@ class _HomePageState extends State<HomePage> {
     });
     super.initState();
     _userFunctionService.loadLinks(user, _userRef, _links);
-
+    _loadAd();
   }
 
 //start of my functions
@@ -75,277 +79,150 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
 
-    if (!await launch(uri.toString(),
-        forceSafariVC: false, forceWebView: false)) {
-      throw "Can not launch URL";
-    }
-  }
-
-  void _loadLinks() async {
-    if (user != null) {
-      final userId = user!.uid;
-      try {
-        // Retrieve links from Firebase Realtime Database
-        DatabaseEvent event =
-            await _userRef.child(userId).child('links').once();
-        DataSnapshot snapshot = event.snapshot;
-
-        setState(() {
-          final dynamic data = snapshot.value;
-          if (data != null && data is Map<dynamic, dynamic>) {
-            _links = Map<String, String>.from(data.cast<String, dynamic>());
-          }
-        });
-      } catch (e) {
-        // Handle any errors, e.g., no internet connection, database errors
-        ToastHelper.showLongToast('Error loading links, check your connection');
-      }
-    }
-  }
-
-  void _shareLinks() async {
-    final List<String> linksToShare = _links.values.toList();
-    final String textToShare =
-        "Check out my socials:\n${linksToShare.join('\n\n')}";
-
-    // Use the `share` function from the `url_launcher` package to share the links
-    await Share.share(textToShare);
-  }
-
-  void _editLink(
-    String socialMedia,
-    String currentLink,
-  ) {
-    // print('Editing $socialMedia link: $currentLink');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditLinksPage(
-          socialMedia: socialMedia,
-          currentLink: currentLink,
-        ),
-      ),
-    );
-  }
-
-  //end of my functions
-
-  Map<String, String> socialMediaIcons = {
-    'Facebook': 'assets/facebook2.png',
-    'Twitter': 'assets/twitter.png',
-    'Youtube': 'assets/play.png',
-    'Instagram': 'assets/instagram.png',
-    'Tiktok': 'assets/tiktok.png',
-    'Snapchat': 'assets/snapchat.png',
-    'LinkedIn': 'assets/linkedin.png',
-    'Pinterest': 'assets/pinterest.png',
-    'Finda': 'assets/finda.png',
-    // Add more social media names and their corresponding asset image paths here
-  };
-  Map<String, LinearGradient> socialMediaGradients = {
-    'Facebook': LinearGradient(
-      colors: [Colors.blue.shade800, Colors.blue.shade300],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Twitter': LinearGradient(
-      colors: [Colors.blue.shade300, Colors.blue],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Instagram': const LinearGradient(
-      colors: [Colors.pink, Colors.purple],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Tiktok': const LinearGradient(
-      colors: [Colors.black, Colors.purple],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Youtube': const LinearGradient(
-      colors: [Colors.red, Colors.black],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Snapchat': const LinearGradient(
-      colors: [Color(0xFFFFFC00), Color(0xFFFFA500)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'LinkedIn': const LinearGradient(
-      colors: [Colors.blue, Colors.blueAccent],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Pinterest': const LinearGradient(
-      colors: [Colors.white, Colors.red],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    'Finda': const LinearGradient(
-      colors: [Color(0xFFADD8E6), Colors.blue],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-    // Add more social media gradients as needed
-  };
 
   @override
   Widget build(BuildContext context) {
     String greeting = _userFunctionService.getGreeting();
-
-    var borderRadius = BorderRadius.circular(15.0);
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Scaffold(
-              // backgroundColor: Colors.transparent,
-              appBar: AppBar(
-                elevation: 0,
-                toolbarHeight: 40.h,
-
-                leadingWidth: double.infinity,
-                leading: Padding(
-                  padding: EdgeInsets.only(
-                    left: 16.0.w,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(greeting,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            color: AppColors.accentColor,
-                          )),
-                      Text(
-                        name?.isNotEmpty == true
-                            ? name![0].toUpperCase() + name!.substring(1)
-                            : '-',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        elevation: 0,
+        toolbarHeight: 40.h,
+        leadingWidth: double.infinity,
+        leading: Padding(
+          padding: EdgeInsets.only(
+            left: 16.0.w,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(greeting,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: AppColors.accentColor,
+                  )),
+              Text(
+                name?.isNotEmpty == true
+                    ? name![0].toUpperCase() + name!.substring(1)
+                    : '-',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0.w),
+            child: Builder(
+              builder: (context) => GestureDetector(
+                onTap: () {
+                  // Open the endDrawer when the IconButton is pressed
+                  Scaffold.of(context).openEndDrawer();
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1,
+                      )),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
+                        ? CachedNetworkImageProvider(_imageUrl!)
+                        : const AssetImage('assets/user.png') as ImageProvider,
                   ),
                 ),
-                actions: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 16.0.w),
-                    child: Builder(
-                      builder: (context) => GestureDetector(
-                        onTap: () {
-                          // Open the endDrawer when the IconButton is pressed
-                          Scaffold.of(context).openEndDrawer();
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 1,
-                              )),
-                          child:CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.white,
-                            backgroundImage: _imageUrl != null && _imageUrl!.isNotEmpty
-                                ? CachedNetworkImageProvider(_imageUrl!)
-                                : const AssetImage('assets/user.png') as ImageProvider,
-                          ),
-
-                        ),
-                      ),
-                    ),
-                  )
-                ],
               ),
-              endDrawer: MyDrawer(
-                  imageUrl: _imageUrl,
-                  name: name,
-                  email: email,
-                  userFunctionService: _userFunctionService),
-              body: Stack(
-                children: [
-                  FrostedGlassBackground(),
-                  AnnotatedRegion<SystemUiOverlayStyle>(
-                    value: SystemUiOverlayStyle.dark,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'My Links',
-                                    style: GoogleFonts.poppins(fontSize: 30.sp),
-                                  ),
-                                ],
-                              ),
-
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: GridView.builder(
-                            padding: const EdgeInsets.all(16.0),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4, // Number of items in each row
-                              mainAxisSpacing: 16.0, // Spacing between rows
-                              crossAxisSpacing: 16.0, // Spacing between columns
-                              // childAspectRatio: 1/1.1
-                            ),
-                            itemCount: _buildLinkCardWidgets().length,
-                            itemBuilder: (context, index) {
-                              return _buildLinkCardWidgets()[index];
-                            },
-                          ),
-                        ),
-                        // SizedBox(
-                        //   height: 12.h,
-                        //   child: Center(
-                        //     child: Visibility(
-                        //       visible: isVisible,
-                        //       child:  Text(
-                        //         'Long press app icon for more options',
-                        //         style: TextStyle(fontSize: 13.sp),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              _shareLinks();
-                            },
-                            icon: const Icon(Icons.share,color: Colors.white,),
-                            label: const Text("Share My Links",style: TextStyle(color: Colors.white),),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.accentColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    50.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const BannerWid(),
-                      ],
+            ),
+          )
+        ],
+      ),
+      endDrawer: MyDrawer(
+          imageUrl: _imageUrl,
+          name: name,
+          email: email,
+          userFunctionService: _userFunctionService),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'My Links',
+                      style:TextStyle(fontSize: 30.sp),
                     ),
+                  ],
+                ),
+                Divider(
+                  color: Theme.of(context).colorScheme.primary,
+                )
+              ],
+            ),
+          ),
+          //expanded
+
+          Expanded(
+            flex: 1,
+            child: GridView.builder(
+              padding: const EdgeInsets.all(16.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, // Number of items in each row
+                mainAxisSpacing: 16.0, // Spacing between rows
+                crossAxisSpacing: 16.0, // Spacing between columns
+                // childAspectRatio: 1/1.1
+              ),
+              itemCount: _buildLinkCardWidgets().length,
+              itemBuilder: (context, index) {
+                return _buildLinkCardWidgets()[index];
+              },
+            ),
+          ),
+
+          ElevatedButton.icon(
+            onPressed: () {
+              _shareLinks();
+            },
+            icon: const Icon(
+              Icons.share,
+              color: Colors.white,
+            ),
+            label: const Text(
+              "Share My Links",
+              style: TextStyle(color: Colors.white),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50.0),
+              ),
+            ),
+          ),
+          Stack(
+            children: [
+              if (_bannerAd != null)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
                   ),
-                ],
-              )),
+                ),
+            ],
+          )
         ],
       ),
     );
@@ -433,4 +310,154 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void _loadAd() async {
+    BannerAd(
+      adUnitId: _adUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, err) {
+          ad.dispose();
+        },
+        // Called when an ad opens an overlay that covers the screen.
+        onAdOpened: (Ad ad) {},
+        // Called when an ad removes an overlay that covers the screen.
+        onAdClosed: (Ad ad) {},
+        // Called when an impression occurs on the ad.
+        onAdImpression: (Ad ad) {},
+      ),
+    ).load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+
+    if (!await launch(uri.toString(),
+        forceSafariVC: false, forceWebView: false)) {
+      throw "Can not launch URL";
+    }
+  }
+
+  void _loadLinks() async {
+    if (user != null) {
+      final userId = user!.uid;
+      try {
+        // Retrieve links from Firebase Realtime Database
+        DatabaseEvent event =
+        await _userRef.child(userId).child('links').once();
+        DataSnapshot snapshot = event.snapshot;
+
+        setState(() {
+          final dynamic data = snapshot.value;
+          if (data != null && data is Map<dynamic, dynamic>) {
+            _links = Map<String, String>.from(data.cast<String, dynamic>());
+          }
+        });
+      } catch (e) {
+        // Handle any errors, e.g., no internet connection, database errors
+        ToastHelper.showLongToast('Error loading links, check your connection');
+      }
+    }
+  }
+
+  void _shareLinks() async {
+    final List<String> linksToShare = _links.values.toList();
+    final String textToShare =
+        "Check out my socials:\n${linksToShare.join('\n\n')}";
+
+    // Use the `share` function from the `url_launcher` package to share the links
+    await Share.share(textToShare);
+  }
+
+  void _editLink(
+      String socialMedia,
+      String currentLink,
+      ) {
+    // print('Editing $socialMedia link: $currentLink');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditLinksPage(
+          socialMedia: socialMedia,
+          currentLink: currentLink,
+        ),
+      ),
+    );
+  }
+
+  //end of my functions
+
+  Map<String, String> socialMediaIcons = {
+    'Facebook': 'assets/facebook2.png',
+    'Twitter': 'assets/twitter.png',
+    'Youtube': 'assets/play.png',
+    'Instagram': 'assets/instagram.png',
+    'Tiktok': 'assets/tiktok.png',
+    'Snapchat': 'assets/snapchat.png',
+    'LinkedIn': 'assets/linkedin.png',
+    'Pinterest': 'assets/pinterest.png',
+    'Finda': 'assets/finda.png',
+    // Add more social media names and their corresponding asset image paths here
+  };
+  Map<String, LinearGradient> socialMediaGradients = {
+    'Facebook': LinearGradient(
+      colors: [Colors.blue.shade800, Colors.blue.shade300],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Twitter': LinearGradient(
+      colors: [Colors.blue.shade300, Colors.blue],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Instagram': const LinearGradient(
+      colors: [Colors.pink, Colors.purple],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Tiktok': const LinearGradient(
+      colors: [Colors.black, Colors.purple],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Youtube': const LinearGradient(
+      colors: [Colors.red, Colors.black],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Snapchat': const LinearGradient(
+      colors: [Color(0xFFFFFC00), Color(0xFFFFA500)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'LinkedIn': const LinearGradient(
+      colors: [Colors.blue, Colors.blueAccent],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Pinterest': const LinearGradient(
+      colors: [Colors.white, Colors.red],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    'Finda': const LinearGradient(
+      colors: [Color(0xFFADD8E6), Colors.blue],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
+    // Add more social media gradients as needed
+  };
 }

@@ -14,9 +14,9 @@ class _BannerWidState extends State<BannerWid> {
 
   // TODO: replace this test ad unit with your own ad unit.
   final String _adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-1926283539123501/7638288619'
+      ? 'ca-app-pub-3940256099942544/2934735716'
       : 'ca-app-pub-3940256099942544/2934735716';
-
+//'ca-app-pub-1926283539123501/7638288619'
   /// Loads a banner ad.
   @override
   void initState() {

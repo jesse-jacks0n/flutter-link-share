@@ -3,6 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:soci/auth/auth_service.dart';
+import 'package:soci/screens/intro_screens/intro_page3.dart';
 import 'package:soci/screens/links_screen.dart';
 import 'package:soci/screens/on_boarding_screen.dart';
 import '../helper/toast_helper.dart';
@@ -38,40 +40,20 @@ class _LoginPageState extends State<LoginPage> {
 
         final user = FirebaseAuth.instance.currentUser;
 
-        if (user != null && user.emailVerified) {
-          // User is signed in and email is verified
-          // Navigate to the appropriate screen based on your logic
-          final databaseReference = FirebaseDatabase.instance.reference();
-          final userLinksRef =
-          databaseReference.child('users/${user.uid}/links');
-
-          final linksSnapshot = await userLinksRef.once();
-
-          if (linksSnapshot.snapshot != null) {
-            // Links data exists, navigate to HomePage
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
+        if (user != null) {
+          if (user.emailVerified) {
+            // Email is already verified, navigate to the appropriate screen
+            navigateToHomePage();
+            ToastHelper.showShortToast('Sign-in successful');
           } else {
-            // Links data doesn't exist, navigate to LinksPage
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LinksPage()),
+            // Email is not verified, send a verification email
+            await user.sendEmailVerification();
+            ToastHelper.showShortToast(
+              'Verification email sent, please verify your email',
             );
           }
-
-          ToastHelper.showShortToast('Sign-in successfull');
-        } else {
-          // User is not signed in or email is not verified
-          // Show a message or handle the case accordingly
-          ToastHelper.showShortToast(
-              'Verification email sent, please verify your email');
-
-          // Optionally, you may sign out the user as they can't proceed without email verification
-          await FirebaseAuth.instance.signOut();
         }
-      } catch (e) {
+      }  catch (e) {
         if (e is FirebaseAuthException && e.code == 'user-not-found') {
           // Handle the case where the user is not found
           ToastHelper.showShortToast('User not found');
@@ -87,17 +69,43 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void navigateToHomePage() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.emailVerified) {
+      // User is signed in and email is verified
+      // Navigate to the appropriate screen based on your logic
+      final databaseReference = FirebaseDatabase.instance.reference();
+      final userLinksRef = databaseReference.child('users/${user.uid}/links');
+      final linksSnapshot = await userLinksRef.once();
+
+      if (linksSnapshot.snapshot != null) {
+        // Links data exists, navigate to HomePage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        // Links data doesn't exist, navigate to LinksPage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LinksPage()),
+        );
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     var borderRadius = BorderRadius.circular(50.0);
     var labelStyle = TextStyle(fontSize: 17.sp);
+    var floatingLabelStyle =  TextStyle(fontSize: 15.sp,color: Theme.of(context).colorScheme.tertiary);
     var style = TextStyle(fontSize: 17.sp);
     var contentPadding =
         EdgeInsets.symmetric(vertical: 13.0.h, horizontal: 15.w);
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+      ),
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 35.h),
@@ -107,9 +115,6 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 60.h,
-                ),
                 Text(
                   'LOGIN',
                   style: TextStyle(
@@ -124,8 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: InputDecoration(
                       labelText: 'Email',
                       filled: true,
-                      // Fill the background with color
-
+                      floatingLabelStyle: floatingLabelStyle,
                       border: OutlineInputBorder(
                         borderRadius: borderRadius,
                       ),
@@ -150,6 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                     labelStyle: labelStyle,
                     contentPadding: contentPadding,
                     filled: true,
+                    floatingLabelStyle: floatingLabelStyle,
                     // Fill the background with color
                     border: OutlineInputBorder(
                       borderRadius: borderRadius,
@@ -183,17 +188,21 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     TextButton(
                       onPressed: () async {
+                        if (emailController.text.trim().isEmpty) {
+                          // Show a toast message if the email field is empty
+                          ToastHelper.showShortToast('Please enter your email');
+                          return;
+                        }
+
                         try {
-                          // Send password reset email
                           await FirebaseAuth.instance.sendPasswordResetEmail(
-                              email: emailController.text);
-                          // Show success message or navigate to a success screen
-                          ToastHelper.showShortToast(
-                              'Password reset email sent');
+                            email: emailController.text,
+                          );
+                          ToastHelper.showShortToast('Password reset email sent');
                         } catch (e) {
-                          // Show error message or handle the error
                           ToastHelper.showShortToast(
-                              'Password reset failed, check connection');
+                            'Password reset failed, check connection',
+                          );
                         }
                       },
                       child: Text(
@@ -205,28 +214,41 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : signIn,
+                GestureDetector(
+                  onTap: _isLoading ? null : signIn,
                   child: _isLoading
-                      ? const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.accentColor,
-                          ),
+                      ? Image.asset(
+                          'assets/Spin.gif',
+                          // Replace with the actual path to your GIF image
+                          width: 70,
+                          height: 70,
                         )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            'Sign in',
-                            style: TextStyle(
-                              fontSize: 20.sp,
+                      : ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                AppColors.accentColor),
+                            // padding:
+                            //     MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            //   const EdgeInsets.symmetric(horizontal: 8),
+                            // ),
+
+                          ),
+                          onPressed: _isLoading ? null : signIn,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              'Sign in',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
                             ),
                           ),
                         ),
                 ),
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 30.0),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -242,7 +264,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const onBoardingScreen(),
+                              builder: (context) => const IntroPage3(),
                             ),
                           );
                         },
@@ -260,7 +282,36 @@ class _LoginPageState extends State<LoginPage> {
                         )),
                   ],
                 ),
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 40.0),
+                Row(
+                  children: [
+                    Expanded(child: Divider(thickness: 1,color: Theme.of(context).colorScheme.primary,)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text('Or continue with'),
+                    ),
+                    Expanded(child: Divider(thickness: 1,color: Theme.of(context).colorScheme.primary,)),
+                  ],
+                ),
+                const SizedBox(height: 40.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => AuthService().signInWithGoogle() ,
+                      child: Container(
+                        padding: const EdgeInsets.all(13),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: borderRadius
+                        ),
+                        child: Image.asset('assets/google.png',scale: 15,),
+                      ),
+                    ),
+                  ],
+                ),
+
+
               ],
             ),
           ),

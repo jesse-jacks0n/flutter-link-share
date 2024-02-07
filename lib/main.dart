@@ -1,9 +1,12 @@
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:soci/auth/auth_util.dart';
+import 'package:soci/theme/dark_theme.dart';
+import 'package:soci/theme/light_theme.dart';
 import 'package:soci/theme/theme.dart';
 
 import 'firebase_options.dart';
@@ -13,6 +16,11 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // await FirebaseAppCheck.instance.activate(webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+  //   androidProvider: AndroidProvider.debug,
+  // );
+
   MobileAds.instance.initialize();
   runApp(const MyApp());
 }
@@ -36,7 +44,8 @@ class MyApp extends StatelessWidget {
           title: 'socials app',
           // You can use the library anywhere in the app even in theme
          // darkTheme: darkMode,
-          theme: lightMode,
+          theme: lightTheme,
+          darkTheme: darkTheme,
           home: child,
           routes: {
             '/testPage': (context) => const AuthPage(),

@@ -36,7 +36,7 @@ class UserFunctionService {
 
       // Sign-out successful
       ToastHelper.showShortToast('Sign-out successful');
-
+// pushing to auth page after successful signout
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AuthPage()),
@@ -85,7 +85,7 @@ class UserFunctionService {
     // Use the `share` function from the `url_launcher` package to share the links
     await Share.share(textToShare);
   }
-
+//
   void editLink(BuildContext context, String socialMedia, String currentLink) {
     print('Editing $socialMedia link: $currentLink');
     Navigator.push(
