@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:soci/helper/toast_helper.dart';
 import 'package:soci/utils/app_colors.dart';
 
+import 'auth_service.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -133,11 +134,11 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    var borderRadius = BorderRadius.circular(50.0);
+    var borderRadius = BorderRadius.circular(15.0);
     var labelStyle =  TextStyle(fontSize: 17.sp);
     var floatingLabelStyle =  TextStyle(fontSize: 15.sp,color: Theme.of(context).colorScheme.tertiary);
     var style =  TextStyle(fontSize: 17.sp);
-    var contentPadding =  EdgeInsets.symmetric(vertical: 13.0.h,horizontal: 15.w);
+    var contentPadding =  EdgeInsets.symmetric(vertical: 13.0.h,horizontal: 20.w);
     return  Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
@@ -145,20 +146,20 @@ class _SignupPageState extends State<SignupPage> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          margin:  EdgeInsets.only(top: 50.h),
+          margin:  EdgeInsets.only(top: 10.h),
           padding:  EdgeInsets.symmetric(horizontal: 20.w),
           child: Form(
             key: personalFormKey,
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                    Text(
-                    'SIGNUP',
+                    'Create an account',
                     style: TextStyle(
                       fontSize: 25.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.accentColor
+                      fontWeight: FontWeight.normal,
+
                     ),
                   ),
                    SizedBox(height: 30.h),
@@ -167,7 +168,12 @@ class _SignupPageState extends State<SignupPage> {
                     style:  style,
 
                     decoration:  InputDecoration(
-                      labelText: 'Name',
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Image.asset('assets/person.png',scale: 18,),
+                      ),
+
+                      labelText: 'Full name',
                         filled: true,
                         floatingLabelStyle: floatingLabelStyle,
                         border: OutlineInputBorder(
@@ -190,6 +196,10 @@ class _SignupPageState extends State<SignupPage> {
                     controller: phoneController,
                     style: style,
                     decoration:  InputDecoration(
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Image.asset('assets/telephone.png',scale: 18,),
+                        ),
                       labelText: 'Phone',
                         filled: true,
                         floatingLabelStyle: floatingLabelStyle,
@@ -213,6 +223,10 @@ class _SignupPageState extends State<SignupPage> {
                     controller: emailController,
                     style: style,
                     decoration:  InputDecoration(
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Image.asset('assets/mail.png',scale: 18,),
+                        ),
                       labelText: 'Email',
                         filled: true,
                         floatingLabelStyle: floatingLabelStyle,
@@ -236,6 +250,10 @@ class _SignupPageState extends State<SignupPage> {
                     controller: passwordController,
                     style: style,
                     decoration: InputDecoration(
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Image.asset('assets/padlock.png',scale: 18,),
+                      ),
                       labelText: 'Password',
                       labelStyle:  labelStyle,
                       floatingLabelStyle: floatingLabelStyle,
@@ -305,34 +323,65 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20.0),
-                  GestureDetector(
-                    onTap: _isLoading ? null : _validateAndFinish,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.accentColor,
-                        borderRadius: borderRadius,
-                      ),
-                      padding:  EdgeInsets.symmetric(
-                          horizontal: 35.w,
-                          vertical: 10.h
-                      ),
+                   SizedBox(height: 20.0.h),
+                  Container(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: _isLoading ? null : _validateAndFinish,
                       child: _isLoading
-                          ? const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.white,
-                        ),
+                          ? Image.asset(
+                        'assets/Spin.gif',
+                        // Replace with the actual path to your GIF image
+                        width: 70,
+                        height: 70,
                       )
-                          :  Text(
-                        'Signup',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          :ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              AppColors.accentColor),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: borderRadius, // Set the border radius here
+                            ),
+                          ),
+                        ),
+                        onPressed: _isLoading ? null : _validateAndFinish,
+                        child:  Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10.0.h),
+                          child: Text(
+                            'Sign up',
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              color: Colors.white
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  SizedBox(height: 20.h,),
+                  Row(
+                    children: [
+                      Expanded(child: Divider(thickness: 1,color: Theme.of(context).colorScheme.primary,)),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text('Or continue with'),
+                      ),
+                      Expanded(child: Divider(thickness: 1,color: Theme.of(context).colorScheme.primary,)),
+                    ],
+                  ),
+                  SizedBox(height: 20.h,),
+                  GestureDetector(
+                    onTap: () => AuthService().signInWithGoogle()  ,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: borderRadius
+                      ),
+                      child: Image.asset('assets/google.png',scale: 15,),
+                    ),
+                  )
                 ],
               ),
             ),

@@ -172,9 +172,9 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
       'Pinterest': 'assets/pinterest.png',
       'Twitter': 'assets/twitter.png',
       'Instagram': 'assets/instagram.png',
-      'Facebook': 'assets/facebook2.png',
+      'Facebook': 'assets/facebook.png',
       'Tiktok': 'assets/tiktok.png',
-      'Youtube': 'assets/play.png',
+      'Youtube': 'assets/youtube.png',
       'Finda': 'assets/finda.png',
       // Add more mappings here
     };

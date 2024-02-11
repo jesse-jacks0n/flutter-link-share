@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:soci/auth/auth_service.dart';
+import 'package:soci/auth/signup_page.dart';
 import 'package:soci/screens/intro_screens/intro_page3.dart';
 import 'package:soci/screens/links_screen.dart';
 import 'package:soci/screens/on_boarding_screen.dart';
@@ -95,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
   }
   @override
   Widget build(BuildContext context) {
-    var borderRadius = BorderRadius.circular(50.0);
+    var borderRadius = BorderRadius.circular(15.0);
     var labelStyle = TextStyle(fontSize: 17.sp);
     var floatingLabelStyle =  TextStyle(fontSize: 15.sp,color: Theme.of(context).colorScheme.tertiary);
     var style = TextStyle(fontSize: 17.sp);
@@ -116,17 +117,21 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'LOGIN',
+                  'Hi, Welcome Back! 👋',
                   style: TextStyle(
                       fontSize: 25.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.accentColor),
+                      fontWeight: FontWeight.normal,
+                      ),
                 ),
                 SizedBox(height: 30.h),
                 TextFormField(
                   controller: emailController,
                   style: style,
                   decoration: InputDecoration(
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Image.asset('assets/mail.png',scale: 18,),
+                      ),
                       labelText: 'Email',
                       filled: true,
                       floatingLabelStyle: floatingLabelStyle,
@@ -150,6 +155,10 @@ class _LoginPageState extends State<LoginPage> {
                   controller: passwordController,
                   style: style,
                   decoration: InputDecoration(
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Image.asset('assets/padlock.png',scale: 18,),
+                    ),
                     labelText: 'Password',
                     labelStyle: labelStyle,
                     contentPadding: contentPadding,
@@ -217,36 +226,41 @@ class _LoginPageState extends State<LoginPage> {
 
                   ],
                 ),
-                GestureDetector(
-                  onTap: _isLoading ? null : signIn,
-                  child: _isLoading
-                      ? Image.asset(
-                          'assets/Spin.gif',
-                          // Replace with the actual path to your GIF image
-                          width: 70,
-                          height: 70,
-                        )
-                      : ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                AppColors.accentColor),
-                            // padding:
-                            //     MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            //   const EdgeInsets.symmetric(horizontal: 8),
-                            // ),
+                Container(
+                  width: double.infinity,
+                  child: GestureDetector(
+                    onTap: _isLoading ? null : signIn,
+                    child: _isLoading
+                        ? Image.asset(
+                            'assets/Spin.gif',
+                            // Replace with the actual path to your GIF image
+                            width: 70,
+                            height: 70,
+                          )
+                        : ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  AppColors.accentColor),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: borderRadius, // Set the border radius here
+                                ),
+                              ),
 
-                          ),
-                          onPressed: _isLoading ? null : signIn,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              'Sign in',
-                              style: TextStyle(
-                                fontSize: 20,
+                            ),
+                            onPressed: _isLoading ? null : signIn,
+                            child:  Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.0.h),
+                              child: Text(
+                                'Log in',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                    color: Colors.white
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                  ),
                 ),
                 const SizedBox(height: 30.0),
                 Row(
@@ -264,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const IntroPage3(),
+                                builder: (context) => const SignupPage(),
                             ),
                           );
                         },

@@ -401,9 +401,9 @@ class _HomePageState extends State<HomePage> {
   //end of my functions
 
   Map<String, String> socialMediaIcons = {
-    'Facebook': 'assets/facebook2.png',
+    'Facebook': 'assets/facebook.png',
     'Twitter': 'assets/twitter.png',
-    'Youtube': 'assets/play.png',
+    'Youtube': 'assets/youtube.png',
     'Instagram': 'assets/instagram.png',
     'Tiktok': 'assets/tiktok.png',
     'Snapchat': 'assets/snapchat.png',
