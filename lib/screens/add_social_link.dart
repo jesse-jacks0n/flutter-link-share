@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:soci/helper/toast_helper.dart';
+import 'package:soci/utils/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'home_screen.dart';
@@ -75,9 +76,9 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
     SocialMediaOption(name: 'LinkedIn', iconAsset: 'assets/linkedin.png'),
     SocialMediaOption(name: 'Pinterest', iconAsset: 'assets/pinterest.png'),
     SocialMediaOption(name: 'Twitter', iconAsset: 'assets/twitter.png'),
-    SocialMediaOption(name: 'Facebook', iconAsset: 'assets/facebook2.png'),
+    SocialMediaOption(name: 'Facebook', iconAsset: 'assets/facebook.png'),
     SocialMediaOption(name: 'Tiktok', iconAsset: 'assets/tiktok.png'),
-    SocialMediaOption(name: 'Youtube', iconAsset: 'assets/play.png'),
+    SocialMediaOption(name: 'Youtube', iconAsset: 'assets/youtube.png'),
     SocialMediaOption(name: 'Finda', iconAsset: 'assets/finda.png'),
     // Add more social media options and their image asset paths here
   ];
@@ -186,7 +187,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
 
   @override
   Widget build(BuildContext context) {
-    var borderRadius = BorderRadius.circular(50.0);
+    var borderRadius = BorderRadius.circular(15.0);
     var labelStyle = TextStyle(fontSize: 17.sp);
     var floatingLabelStyle =  TextStyle(fontSize: 17.sp,color: Theme.of(context).colorScheme.tertiary);
 
@@ -387,7 +388,7 @@ class _AddSocialLinkPageState extends State<AddSocialLinkPage>
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: socialMediaColors[selectedSocialMedia],
+                    color:AppColors.accentColor,
                     // Use the selected color
                     borderRadius: borderRadius,
                   ),

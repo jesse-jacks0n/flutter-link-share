@@ -25,16 +25,14 @@ class AddSocialLink extends StatelessWidget {
           color: Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(10.0),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/plus.png',
-              width: 40.w,
-              height: 40.h,
-              color: Colors.grey.shade600,
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            'assets/plus.png',
+            width: 30.w,
+            height: 25.h,
+            color: Colors.grey.shade600,
+          ),
         ),
       ),
     );

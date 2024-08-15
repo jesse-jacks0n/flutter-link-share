@@ -25,7 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<Map<String, dynamic>?> fetchUserData(String uid) async {
     DatabaseReference userRef =
-    FirebaseDatabase.instance.ref().child('users').child(uid);
+        FirebaseDatabase.instance.ref().child('users').child(uid);
 
     try {
       // Wait for the event to complete and extract the DataSnapshot
@@ -102,6 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text('Edit Bio'),
           content: TextField(
             controller: _bioController,
@@ -113,7 +114,10 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel',style: TextStyle(color: Colors.grey.shade500),),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey.shade500),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -121,7 +125,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 // Optionally, you can pass the bio text to _onSubmit
                 // _onSubmit(_bioController.text);
               },
-              child: Text('Submit',style: TextStyle(color: Colors.grey.shade500)),
+              child:
+                  Text('Submit', style: TextStyle(color: Colors.grey.shade500)),
             ),
           ],
         );
@@ -132,21 +137,22 @@ class _ProfilePageState extends State<ProfilePage> {
   void deleteAccount() async {
     try {
       // Delete user data from Firebase Realtime Database
-      final DatabaseReference databaseReference =
-      FirebaseDatabase.instance.reference().child('users/${FirebaseAuth.instance.currentUser?.uid}');
+      final DatabaseReference databaseReference = FirebaseDatabase.instance
+          .reference()
+          .child('users/${FirebaseAuth.instance.currentUser?.uid}');
       await databaseReference.remove();
 
       // Delete the user account
       await FirebaseAuth.instance.currentUser?.delete();
 
       // Sign the user out
-        signOut();
-
+      signOut();
     } catch (e) {
       // Account deletion failed
       ToastHelper.showShortToast('Error deleting account: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     var marginBottom = const EdgeInsets.only(bottom: 10);
@@ -165,12 +171,12 @@ class _ProfilePageState extends State<ProfilePage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 // While data is loading, show a progress indicator
                 return Center(
-                  child:Image.asset(
-                    'assets/Spin.gif', // Replace with the actual path to your GIF image
-                    width: 70,
-                    height: 70,
-                  )
-                );
+                    child: Image.asset(
+                  'assets/Spin.gif',
+                  // Replace with the actual path to your GIF image
+                  width: 70,
+                  height: 70,
+                ));
               } else if (snapshot.hasError) {
                 // If there's an error while fetching data, display an error message
                 return Text('Error fetching data: ${snapshot.error}');
@@ -182,7 +188,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 } else {
                   // Your existing UI code using the fetched data
                   return Column(
-
                     children: [
                       ImageUploadWidget(),
                       const SizedBox(
@@ -193,9 +198,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(10),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color:Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.8),
                           borderRadius: BorderRadius.circular(15),
-
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -203,14 +210,19 @@ class _ProfilePageState extends State<ProfilePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-
                               Text(
                                 '${name ?? 'guest'}',
-                                style: TextStyle(fontSize: 25.sp,color: Theme.of(context).colorScheme.tertiary),
+                                style: TextStyle(
+                                    fontSize: 25.sp,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                               ),
                               Text(
                                 '${email ?? 'email'}',
-                                style: TextStyle(fontSize: 18.sp,color: Theme.of(context).colorScheme.tertiary),
+                                style: TextStyle(
+                                    fontSize: 18.sp,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                               ),
                             ],
                           ),
@@ -221,9 +233,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.all(10),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color:Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.8),
                           borderRadius: BorderRadius.circular(15),
-
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -237,7 +251,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 loop: 3,
                                 highlightColor: Colors.grey.shade200,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('My Bio',
                                         style: TextStyle(
@@ -248,19 +263,21 @@ class _ProfilePageState extends State<ProfilePage> {
                                         _showEditBioDialog(context);
                                       },
                                       icon: Icon(Icons.edit),
-                                    ), ],
+                                    ),
+                                  ],
                                 ),
                               ),
                               Text(
                                 '${bio ?? 'bio'}',
-                                style: TextStyle(fontSize: 18,color: Theme.of(context).colorScheme.tertiary),
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary),
                               ),
-
                             ],
                           ),
                         ),
                       ),
-
                     ],
                   );
                 }
@@ -270,48 +287,67 @@ class _ProfilePageState extends State<ProfilePage> {
           Column(
             children: [
               TextButton(
-              child:  Text('Delete Account',style: TextStyle(color: Colors.grey.shade500,fontSize: 20.sp),),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      backgroundColor:
-                      Theme.of(context).colorScheme.primary,
-                      title: const Text('Delete Account'),
-                      content: const Text(
-                          'Are you sure you want to delete your account? This action can not be undone.'),
-                      actions: [
-                        TextButton(
+                child: Text(
+                  'Delete Account',
+                  style:
+                      TextStyle(color: Colors.grey.shade500, fontSize: 20.sp),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        title: const Text('Delete Account'),
+                        content: Text(
+                            'Are you sure you want to delete your account? This action can not be undone.',style: TextStyle(fontSize: 15.sp),),
+                        actions: [
+                          GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text('Cancel',
+                                  style: TextStyle())),
+                          TextButton(
                             onPressed: () {
-                              Navigator.of(context)
-                                  .pop(); // Close the dialog
+                              deleteAccount();
+                              Navigator.of(context).pop(); // Close the dialog
                             },
-                            child: Text('Cancel',
-                                style:
-                                TextStyle(color: AppColors.cancel))),
-                        TextButton(
-                          onPressed: () {
-                            deleteAccount();
-                            Navigator.of(context)
-                                .pop(); // Close the dialog
-                          },
-                          child: const Text(
-                            'Delete',
-                            style:
-                            TextStyle(color: AppColors.accentColor),
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(color: AppColors.cancel),
+                            ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-              SizedBox(height: 20,),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              SizedBox(
+                height: 20,
+              ),
               BannerWid(),
             ],
-          )
+          ),
+          // Center(
+          //   child: ElevatedButton(
+          //     onPressed: () {
+          //       showModalBottomSheet(
+          //         context: context,
+          //         builder: (BuildContext context) {
+          //           return Container(
+          //             height: 200,
+          //             child: Center(
+          //               child: Text('This is a modal bottom sheet'),
+          //             ),
+          //           );
+          //         },
+          //       );
+          //     },
+          //     child: Text('Open Modal Bottom Sheet'),
+          //   ),
+          // )
         ],
       ),
     );
@@ -335,4 +371,4 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 // 539128
-  //  545206
+//  545206

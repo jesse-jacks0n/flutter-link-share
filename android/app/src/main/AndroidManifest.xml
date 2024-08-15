@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="soci"
+        android:label="Miyaja"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data

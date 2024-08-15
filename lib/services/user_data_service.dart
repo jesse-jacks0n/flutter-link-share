@@ -26,18 +26,29 @@ class UserDataService {
       return null;
     }
   }
-  Future<String?> fetchImageUrl() async {
-    try {
-      final User? user = FirebaseAuth.instance.currentUser;
-      final storage = FirebaseStorage.instance;
-      final Reference ref =
-      storage.ref().child('users/${user?.uid}/profile.jpg');
 
-      String? imageUrl = await ref.getDownloadURL();
-      return imageUrl; // Return the fetched imageUrl
-    } catch (e) {
-      print('Error fetching image URL: $e');
-      return null;
-    }
+  Stream<String?> getProfileImageUrlStream() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return FirebaseDatabase.instance
+        .ref()
+        .child('users/${user?.uid}/imageUrl')
+        .onValue
+        .map((event) => event.snapshot.value as String?);
   }
+
+
+  // Future<String?> fetchImageUrl() async {
+  //   try {
+  //     final User? user = FirebaseAuth.instance.currentUser;
+  //     final storage = FirebaseStorage.instance;
+  //     final Reference ref =
+  //     storage.ref().child('users/${user?.uid}/profile.jpg');
+  //
+  //     String? imageUrl = await ref.getDownloadURL();
+  //     return imageUrl; // Return the fetched imageUrl
+  //   } catch (e) {
+  //     print('Error fetching image URL: $e');
+  //     return null;
+  //   }
+  // }
 }
